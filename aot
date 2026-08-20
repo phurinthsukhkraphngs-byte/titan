@@ -3178,7 +3178,8 @@ if Tabs.Lobby then
         ["Forest"] = {"Skirmish","Guard","Random"},
         ["Utgard"] = {"Skirmish","Defend","Random"},
         ["Docks"] = {"Skirmish","Stall","Random"},
-        ["Stohess"] = {"Skirmish","Random"}
+        ["Stohess"] = {"Skirmish","Random"},
+        ["Chapel"] = {"Skirmish","Random"}
     }
 
     local ModifiersList = {
@@ -3620,7 +3621,7 @@ if Tabs.Lobby then
     end
 
     MissionTab:AddDropdown("MissionDropdown", {
-        Values = {"Shiganshina","Trost","Outskirts","Forest","Utgard","Docks","Stohess"},
+        Values = {"Shiganshina","Trost","Outskirts","Forest","Utgard","Docks","Stohess","Chapel"},
         Default = State_Mission.Name,
         Text = "Mission",
         Callback = function(val)
