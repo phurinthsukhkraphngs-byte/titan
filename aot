@@ -9484,11 +9484,16 @@ if Tabs.AutoFarm then
     })
 end
 
-
+-- ╔════════════════════════════════════════════════════════════════════════╗
+-- ║              TCFG CONFIG APPLICATION SYSTEM v2.1                      ║
+-- ║  วางโค้ดนี้ท้ายสุดของสคริปต์เดิม (UI#2.lua)                          ║
+-- ║  ระบบจะอ่าน getgenv().TCFG แล้ว apply ลง UI + monitor การเปลี่ยน     ║
+-- ╚════════════════════════════════════════════════════════════════════════╝
 
 task.spawn(function()
     local TCFG = getgenv().TCFG
     if not TCFG then return end
+
     -- ═══════════════════════════════════════════════════
     -- รอให้ Options พร้อม (รอ UI สร้างเสร็จ)
     -- ═══════════════════════════════════════════════════
@@ -9502,6 +9507,7 @@ task.spawn(function()
         return
     end
     task.wait(3) -- รอ SaveManager autoload เสร็จ
+
     -- ═══════════════════════════════════════════════════
     -- Helper Functions
     -- ═══════════════════════════════════════════════════
@@ -9512,6 +9518,7 @@ task.spawn(function()
             end
         end)
     end
+
     local function safeSetToggle(toggleName, value)
         pcall(function()
             if Toggles and Toggles[toggleName] then
@@ -9521,6 +9528,7 @@ task.spawn(function()
             end
         end)
     end
+
     local function safeSetMultiDropdown(optionName, valueList)
         if not valueList or type(valueList) ~= "table" then return end
         local multiTable = {}
@@ -9529,10 +9537,12 @@ task.spawn(function()
         end
         safeSet(optionName, multiTable)
     end
+
     -- ═══════════════════════════════════════════════════
     -- เก็บ snapshot สำหรับ reactive monitoring
     -- ═══════════════════════════════════════════════════
     local lastSnapshot = {}
+
     local function deepCopy(tbl)
         if type(tbl) ~= "table" then return tbl end
         local copy = {}
@@ -9541,6 +9551,7 @@ task.spawn(function()
         end
         return copy
     end
+
     local function deepEqual(a, b)
         if type(a) ~= type(b) then return false end
         if type(a) ~= "table" then return a == b end
@@ -9552,6 +9563,7 @@ task.spawn(function()
         end
         return true
     end
+
     local function getChangedKeys(oldCfg, newCfg)
         local changed = {}
         for k, v in pairs(newCfg) do
@@ -9561,6 +9573,7 @@ task.spawn(function()
         end
         return changed
     end
+
     -- ═══════════════════════════════════════════════════
     -- Apply ค่าจาก TCFG ลง UI - รองรับทุก context
     -- ═══════════════════════════════════════════════════
@@ -9574,19 +9587,23 @@ task.spawn(function()
             end
             return false
         end
+
         -- ╔════════════════════════════════════════╗
         -- ║          MAIN MENU CONTEXT             ║
         -- ╚════════════════════════════════════════╝
-        if IsMainmenuLobby() then
+        if Options.SlotSelectionDropdown then
+
             -- Slot Selection
             if shouldApply("Slot") and cfg.Slot then
                 safeSet("SlotSelectionDropdown", cfg.Slot)
                 task.wait(0.3)
             end
+
             -- Auto Click Select Slot
             if shouldApply("AutoSlot") then
                 safeSetToggle("AutoClickSelectToggle", cfg.AutoSlot)
             end
+
             -- Auto Join
             if shouldApply("JoinDestination") and cfg.JoinDestination then
                 safeSet("JoinDestinationDropdown", cfg.JoinDestination)
@@ -9598,10 +9615,12 @@ task.spawn(function()
                 task.wait(0.5)
                 safeSetToggle("MyToggle", cfg.AutoJoin)
             end
+
             -- Auto Not Now (community popup)
             if shouldApply("AutoNotNow") then
                 safeSetToggle("AutoNotNowClickerToggle", cfg.AutoNotNow)
             end
+
             -- Auto Teleport
             if shouldApply("AutoTeleportTime") and cfg.AutoTeleportTime then
                 safeSet("AutoTeleportTimeSlider", cfg.AutoTeleportTime)
@@ -9609,6 +9628,7 @@ task.spawn(function()
             if shouldApply("AutoTeleportEnabled") then
                 safeSetToggle("AutoTeleportToggle", cfg.AutoTeleportEnabled)
             end
+
             -- Family Webhook
             if shouldApply("FamilyWebhookLink") and cfg.FamilyWebhookLink and cfg.FamilyWebhookLink ~= "" then
                 safeSet("Webhook_URL", cfg.FamilyWebhookLink)
@@ -9616,13 +9636,16 @@ task.spawn(function()
             if shouldApply("FamilyPingMode") and cfg.FamilyPingMode then
                 safeSet("Webhook_PingMode", cfg.FamilyPingMode)
             end
+
             print("[TCFG] Main Menu config applied")
         end
+
         -- ╔════════════════════════════════════════╗
         -- ║            LOBBY CONTEXT               ║
         -- ╚════════════════════════════════════════╝
-        if IsLobbyLobby() then
+        if Options.MissionDropdown then
             local startType = cfg.AutoStartType or "Missions"
+
             -- ─── Mission Settings ───
             if startType == "Missions" then
                 if shouldApply("AutoStartMap") and cfg.AutoStartMap then
@@ -9645,6 +9668,7 @@ task.spawn(function()
                     safeSet("MissionDelaySlider", cfg.AutoStartDelay)
                 end
             end
+
             -- ─── Raid Settings ───
             if startType == "Raids" then
                 if shouldApply("AutoStartMap") and cfg.AutoStartMap then
@@ -9663,12 +9687,14 @@ task.spawn(function()
                     safeSet("RaidDelaySlider", cfg.AutoStartDelay)
                 end
             end
+
             -- ─── Waves Settings ───
             if startType == "Waves" then
                 if shouldApply("AutoStartDelay") and cfg.AutoStartDelay then
                     safeSet("WavesDelaySlider", cfg.AutoStartDelay)
                 end
             end
+
             -- ─── Prestige ───
             if shouldApply("PrestigeGold1") and cfg.PrestigeGold1 ~= nil then
                 safeSet("GoldReq_0to1", cfg.PrestigeGold1)
@@ -9698,6 +9724,7 @@ task.spawn(function()
                 task.wait(0.3)
                 safeSetToggle("PrestigeToggle", cfg.AutoPrestige)
             end
+
             -- ─── Auto Upgrade ───
             if shouldApply("AutoUpgrade") and cfg.AutoUpgrade then
                 task.wait(0.5)
@@ -9708,6 +9735,7 @@ task.spawn(function()
                     safeSetToggle("AutoUpgradeBladeToggle", true)
                 end
             end
+
             -- ─── Boosts ───
             if shouldApply("Boosts") and cfg.Boosts and #cfg.Boosts > 0 then
                 safeSetMultiDropdown("Boost_ListDropdown", cfg.Boosts)
@@ -9718,6 +9746,7 @@ task.spawn(function()
                 task.wait(0.5)
                 safeSetToggle("Boost_AutoUseToggle", true)
             end
+
             -- ─── Claims ───
             if shouldApply("ClaimDelay") and cfg.ClaimDelay then
                 safeSet("ClaimDelaySlider", cfg.ClaimDelay)
@@ -9730,6 +9759,7 @@ task.spawn(function()
                 task.wait(0.3)
                 safeSetToggle("ClaimAchievementToggle", cfg.ClaimAchievements)
             end
+
             -- ─── Skill Tree ───
             if shouldApply("AutoSkillTree") and cfg.AutoSkillTree then
                 if cfg.DefenseSide and cfg.DefenseSide ~= "None" then
@@ -9744,12 +9774,14 @@ task.spawn(function()
                 task.wait(0.5)
                 safeSetToggle("UnlockSkillsToggle", true)
             end
+
             -- ─── Trade History ───
             if shouldApply("HistoryOption") and cfg.HistoryOption then
                 safeSet("HistoryOptionDropdown", cfg.HistoryOption)
                 task.wait(0.2)
                 safeSetToggle("ApplyHistoryToggle", true)
             end
+
             -- ─── Auto Start (ทำทีหลังสุด) ───
             if shouldApply("AutoStart") and cfg.AutoStart then
                 task.wait(2)
@@ -9761,20 +9793,25 @@ task.spawn(function()
                     safeSetToggle("AutoWavesToggle", true)
                 end
             end
+
             print("[TCFG] Lobby config applied")
         end
+
         -- ╔════════════════════════════════════════╗
         -- ║          IN-GAME CONTEXT               ║
         -- ╚════════════════════════════════════════╝
-        if IsIngameLobby() then
+        if Options.FarmModeDropdown then
+
             -- ─── FPS ───
             if shouldApply("FPSLimit") and cfg.FPSLimit then
                 safeSet("FPSLimitSlider", cfg.FPSLimit)
             end
+
             -- ─── UI Scale ───
             if shouldApply("UIScale") and cfg.UIScale then
                 safeSet("UIScaleSlider", cfg.UIScale)
             end
+
             -- ─── Rendering ───
             if shouldApply("Disable3dRendering") or shouldApply("LowGraphic")
                or shouldApply("DeleteMap") or shouldApply("DisableTextDMG") then
@@ -9787,6 +9824,7 @@ task.spawn(function()
                     safeSet("RenderModeDropdown", renderOptions)
                 end
             end
+
             -- ─── Safety ───
             if shouldApply("MissionTimer") and cfg.MissionTimer then
                 safeSet("SafetyTimeSlider", math.clamp(cfg.MissionTimer, 0, 90))
@@ -9794,6 +9832,7 @@ task.spawn(function()
             if shouldApply("StopAtTitansLeft") and cfg.StopAtTitansLeft then
                 safeSet("StopAtTitansLeftSlider", math.clamp(cfg.StopAtTitansLeft, 13, 30))
             end
+
             -- ─── Farm Mode (Blade) ───
             if shouldApply("HoverMethod") and cfg.HoverMethod then
                 local hoverMethod = cfg.HoverMethod
@@ -9810,6 +9849,7 @@ task.spawn(function()
             if shouldApply("MultiHit") and cfg.MultiHit then
                 safeSet("KillHitsSlider", math.clamp(cfg.MultiHit, 1, 9))
             end
+
             -- ─── Farm Mode (Thunder Spear) ───
             if shouldApply("ThunderSpearFarmMode") and cfg.ThunderSpearFarmMode then
                 local spearMode = cfg.ThunderSpearFarmMode
@@ -9822,22 +9862,27 @@ task.spawn(function()
             if shouldApply("ThunderSpearHoverHeight") and cfg.ThunderSpearHoverHeight then
                 safeSet("ThunderSpear_HoverHeight", cfg.ThunderSpearHoverHeight)
             end
+
             -- ─── Auto Reload ───
             if shouldApply("AutoReload") then
                 safeSetToggle("AutoReloadBlade", cfg.AutoReload)
             end
+
             -- ─── Auto Retry ───
             if shouldApply("AutoRetry") then
                 safeSetToggle("StartRejoin", cfg.AutoRetry)
             end
+
             -- ─── Skip Cutscene ───
             if shouldApply("SkipCutscene") then
                 safeSetToggle("SkipCutSceneToggle", cfg.SkipCutscene)
             end
+
             -- ─── Player Stats ───
             if shouldApply("ShowPlayerStats") then
                 safeSetToggle("PlayerStatsToggle", cfg.ShowPlayerStats)
             end
+
             -- ─── Webhook (In-Game) ───
             if shouldApply("WebhookLink") and cfg.WebhookLink and cfg.WebhookLink ~= "" then
                 safeSet("WebhookURL", cfg.WebhookLink)
@@ -9852,6 +9897,7 @@ task.spawn(function()
                 task.wait(0.3)
                 safeSetToggle("WebhookToggle", cfg.Webhook)
             end
+
             -- ─── FailSafe (Combined Actions) ───
             if shouldApply("FarmOptions") or shouldApply("LobbyReturn") then
                 if cfg.FarmOptions and type(cfg.FarmOptions) == "table" then
@@ -9870,6 +9916,7 @@ task.spawn(function()
                     end
                 end
             end
+
             -- ─── Auto Farm (ทำทีหลังสุด) ───
             if shouldApply("AutoFarm") and cfg.AutoFarm then
                 task.wait(2)
@@ -9880,8 +9927,10 @@ task.spawn(function()
                     safeSetToggle("AutoFarmBlade", true)
                 end
             end
+
             print("[TCFG] Ingame config applied")
         end
+
         -- ╔════════════════════════════════════════╗
         -- ║           DISABLE GUI                  ║
         -- ╚════════════════════════════════════════╝
@@ -9894,6 +9943,7 @@ task.spawn(function()
                     end
                 end
             end)
+
             -- ถ้ามี FarmOptions "Close GUI"
             if cfg.FarmOptions and type(cfg.FarmOptions) == "table" then
                 for _, opt in ipairs(cfg.FarmOptions) do
@@ -9910,94 +9960,109 @@ task.spawn(function()
             end
             print("[TCFG] GUI hidden")
         end
+
         print("[TCFG] All config applied successfully!")
     end
+
     -- ═══════════════════════════════════════════════════
     -- APPLY ครั้งแรก
     -- ═══════════════════════════════════════════════════
-    applyConfig(TCFG)
+    pcall(function()
+        applyConfig(TCFG)
+    end)
     lastSnapshot = deepCopy(TCFG)
+
     -- ═══════════════════════════════════════════════════
     -- REACTIVE MONITORING LOOP
-    -- เช็คทุก 3 วินาที ว่า TCFG เปลี่ยนหรือไม่
-    -- ถ้าเปลี่ยน → apply เฉพาะค่าที่เปลี่ยน
     -- ═══════════════════════════════════════════════════
-    while true do
-        task.wait(3)
-        local currentCfg = getgenv().TCFG
-        if not currentCfg then break end
-        local changed = getChangedKeys(lastSnapshot, currentCfg)
-        if #changed > 0 then
-            print("[TCFG] Detected config change:", table.concat(changed, ", "))
-            applyConfig(currentCfg, changed)
-            lastSnapshot = deepCopy(currentCfg)
-        end
-    end
-end)
--- ══════════════════════════════════════════════════════════
--- TCFG: LEAVE IF OTHER PLAYERS (ตรวจผู้เล่นอื่นทุก 3 วินาที)
--- ══════════════════════════════════════════════════════════
-if IsIngameLobby() then
     task.spawn(function()
-        local TCFG = getgenv().TCFG
-        if not TCFG then return end
-        if not TCFG.LeaveIfOtherPlayers then return end
-        task.wait(5)
-        local Players = game:GetService("Players")
-        local LocalPlayer = Players.LocalPlayer
         while true do
             task.wait(3)
-            if not getgenv().TCFG or not getgenv().TCFG.LeaveIfOtherPlayers then break end
-            local otherPlayers = 0
-            for _, p in ipairs(Players:GetPlayers()) do
-                if p ~= LocalPlayer then
-                    otherPlayers = otherPlayers + 1
-                end
-            end
-            if otherPlayers > 0 then
+            local currentCfg = getgenv().TCFG
+            if not currentCfg then break end
+
+            local changed = getChangedKeys(lastSnapshot, currentCfg)
+            if #changed > 0 then
+                print("[TCFG] Detected config change:", table.concat(changed, ", "))
                 pcall(function()
-                    Library:Notify(string.format("⚠️ Other players detected (%d)! Teleporting...", otherPlayers), 5)
+                    applyConfig(currentCfg, changed)
                 end)
-                task.wait(2)
-                pcall(function()
-                    game:GetService("TeleportService"):Teleport(13379208636, LocalPlayer)
-                end)
-                task.wait(10)
-                pcall(function() game:Shutdown() end)
+                lastSnapshot = deepCopy(currentCfg)
             end
         end
     end)
-end
--- ══════════════════════════════════════════════════════════
--- TCFG: STREAK DIE (เช็ค streak แล้ว kill character)
--- ══════════════════════════════════════════════════════════
-if IsIngameLobby() then
-    task.spawn(function()
-        local TCFG = getgenv().TCFG
-        if not TCFG then return end
-        if not TCFG.StreakDie then return end
-        local targetStreak = TCFG.StreakToDieAt or 5000
-        task.wait(10)
-        while true do
+
+    -- ══════════════════════════════════════════════════════════
+    -- TCFG: LEAVE IF OTHER PLAYERS
+    -- ══════════════════════════════════════════════════════════
+    if Options.FarmModeDropdown then
+        task.spawn(function()
+            local cfg = getgenv().TCFG
+            if not cfg or not cfg.LeaveIfOtherPlayers then return end
+
             task.wait(5)
-            if not getgenv().TCFG or not getgenv().TCFG.StreakDie then break end
-            -- อัพเดท target streak แบบ reactive
-            targetStreak = getgenv().TCFG.StreakToDieAt or targetStreak
-            pcall(function()
-                local player = game:GetService("Players").LocalPlayer
-                local streak = player:GetAttribute("Streak") or 0
-                if streak >= targetStreak then
-                    pcall(function()
-                        Library:Notify(string.format("Streak reached %d! Killing character...", streak), 5)
-                    end)
-                    if player.Character and player.Character:FindFirstChild("Humanoid") then
-                        player.Character.Humanoid.Health = 0
+            local Players = game:GetService("Players")
+            local LocalPlayer = Players.LocalPlayer
+
+            while true do
+                task.wait(3)
+                if not getgenv().TCFG or not getgenv().TCFG.LeaveIfOtherPlayers then break end
+
+                local otherPlayers = 0
+                for _, p in ipairs(Players:GetPlayers()) do
+                    if p ~= LocalPlayer then
+                        otherPlayers = otherPlayers + 1
                     end
                 end
-            end)
-        end
-    end)
-end
+
+                if otherPlayers > 0 then
+                    pcall(function()
+                        Library:Notify(string.format("⚠️ Other players detected (%d)! Teleporting...", otherPlayers), 5)
+                    end)
+                    task.wait(2)
+                    pcall(function()
+                        game:GetService("TeleportService"):Teleport(13379208636, LocalPlayer)
+                    end)
+                    task.wait(10)
+                    pcall(function() game:Shutdown() end)
+                end
+            end
+        end)
+    end
+
+    -- ══════════════════════════════════════════════════════════
+    -- TCFG: STREAK DIE
+    -- ══════════════════════════════════════════════════════════
+    if Options.FarmModeDropdown then
+        task.spawn(function()
+            local cfg = getgenv().TCFG
+            if not cfg or not cfg.StreakDie then return end
+
+            local targetStreak = cfg.StreakToDieAt or 5000
+            task.wait(10)
+
+            while true do
+                task.wait(5)
+                if not getgenv().TCFG or not getgenv().TCFG.StreakDie then break end
+                targetStreak = getgenv().TCFG.StreakToDieAt or targetStreak
+
+                pcall(function()
+                    local player = game:GetService("Players").LocalPlayer
+                    local streak = player:GetAttribute("Streak") or 0
+                    if streak >= targetStreak then
+                        pcall(function()
+                            Library:Notify(string.format("Streak reached %d! Killing character...", streak), 5)
+                        end)
+                        if player.Character and player.Character:FindFirstChild("Humanoid") then
+                            player.Character.Humanoid.Health = 0
+                        end
+                    end
+                end)
+            end
+        end)
+    end
+end)
+
 -- ══════════════════════════════════════════════════════════
 -- TCFG: PRIVATE SERVER SUPPORT
 -- ══════════════════════════════════════════════════════════
@@ -10007,4 +10072,5 @@ task.spawn(function()
     if not TCFG.PrivateServerCode or TCFG.PrivateServerCode == "" then return end
     getgenv()._TCFG_PrivateServerCode = TCFG.PrivateServerCode
 end)
+
 print("[ZerixSCRIPT] TCFG Config System loaded!")
