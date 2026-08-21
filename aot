@@ -3178,8 +3178,7 @@ if Tabs.Lobby then
         ["Forest"] = {"Skirmish","Guard","Random"},
         ["Utgard"] = {"Skirmish","Defend","Random"},
         ["Docks"] = {"Skirmish","Stall","Random"},
-        ["Stohess"] = {"Skirmish","Random"},
-        ["Chapel"] = {"Skirmish","Random"}
+        ["Stohess"] = {"Skirmish","Random"}
     }
 
     local ModifiersList = {
@@ -3621,7 +3620,7 @@ if Tabs.Lobby then
     end
 
     MissionTab:AddDropdown("MissionDropdown", {
-        Values = {"Shiganshina","Trost","Outskirts","Forest","Utgard","Docks","Stohess","Chapel"},
+        Values = {"Shiganshina","Trost","Outskirts","Forest","Utgard","Docks","Stohess"},
         Default = State_Mission.Name,
         Text = "Mission",
         Callback = function(val)
@@ -7337,32 +7336,32 @@ local function AttackAllTitans()
     if safe then
         SafeFire(POST, "Attacks", "Slash", true)
         local targets = GetTargets(killHits)
-        for i = 1, #targets do
-            local entry = targets[i]
-            local nape = entry.nape
-            if nape and nape.Parent then
-                SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
+        task.spawn(function()
+            for i = 1, #targets do
+                local entry = targets[i]
+                local nape = entry.nape
+                if nape and nape.Parent then
+                    SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
+                end
+                task.wait(0.015)
             end
-           if i < #targets and math.random() < 0.35 then
-                task.wait(math.random() * 0.015)
-            end
-        end
+        end)
         return
     end
 
     if isShiganshinaBreachMission and not protectHQCompleted then
         SafeFire(POST, "Attacks", "Slash", true)
         local targets = GetTargets(killHits)
-        for i = 1, #targets do
-            local entry = targets[i]
-            local nape = entry.nape
-            if nape and nape.Parent then
-                SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
+        task.spawn(function()
+            for i = 1, #targets do
+                local entry = targets[i]
+                local nape = entry.nape
+                if nape and nape.Parent then
+                    SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
+                end
+                task.wait(0.015)
             end
-            if i < #targets and math.random() < 0.35 then
-                task.wait(math.random() * 0.015)
-            end
-        end
+        end)
         return
     end
 
@@ -7391,32 +7390,32 @@ local function AttackAllTitans()
 
     if not slayVisible then
         SafeFire(POST, "Attacks", "Slash", true)
-        for i = 1, #targets do
-            local entry = targets[i]
-            local nape = entry.nape
-            if nape and nape.Parent then
-                SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
+        task.spawn(function()
+            for i = 1, #targets do
+                local entry = targets[i]
+                local nape = entry.nape
+                if nape and nape.Parent then
+                    SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
+                end
+                task.wait(0.015)
             end
-            if i < #targets and math.random() < 0.35 then
-                task.wait(math.random() * 0.015)
-            end
-        end
+        end)
         return
     end
 
     if not safe and #ActiveTitans <= stopAt then return end
 
     SafeFire(POST, "Attacks", "Slash", true)
-    for i = 1, #targets do
-        local entry = targets[i]
-        local nape = entry.nape
-        if nape and nape.Parent then
-            SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
-        end
-        if i < #targets and math.random() < 0.35 then
-            task.wait(math.random() * 0.015)
-        end
-    end
+    task.spawn(function()
+            for i = 1, #targets do
+                local entry = targets[i]
+                local nape = entry.nape
+                if nape and nape.Parent then
+                    SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
+                end
+                task.wait(0.015)
+            end
+        end)
 end
 
 local function FarmUpdate()
@@ -9484,6 +9483,7 @@ if Tabs.AutoFarm then
         end
     })
 end
+
 
 
 task.spawn(function()
