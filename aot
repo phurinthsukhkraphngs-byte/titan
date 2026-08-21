@@ -3178,7 +3178,8 @@ if Tabs.Lobby then
         ["Forest"] = {"Skirmish","Guard","Random"},
         ["Utgard"] = {"Skirmish","Defend","Random"},
         ["Docks"] = {"Skirmish","Stall","Random"},
-        ["Stohess"] = {"Skirmish","Random"}
+        ["Stohess"] = {"Skirmish","Random"},
+        ["Chapel"] = {"Skirmish","Random"}
     }
 
     local ModifiersList = {
@@ -3620,7 +3621,7 @@ if Tabs.Lobby then
     end
 
     MissionTab:AddDropdown("MissionDropdown", {
-        Values = {"Shiganshina","Trost","Outskirts","Forest","Utgard","Docks","Stohess"},
+        Values = {"Shiganshina","Trost","Outskirts","Forest","Utgard","Docks","Stohess","Chapel"},
         Default = State_Mission.Name,
         Text = "Mission",
         Callback = function(val)
@@ -7336,32 +7337,26 @@ local function AttackAllTitans()
     if safe then
         SafeFire(POST, "Attacks", "Slash", true)
         local targets = GetTargets(killHits)
-        task.spawn(function()
-            for i = 1, #targets do
-                local entry = targets[i]
-                local nape = entry.nape
-                if nape and nape.Parent then
-                    SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
-                end
-                task.wait(0.015)
+        for i = 1, #targets do
+            local entry = targets[i]
+            local nape = entry.nape
+            if nape and nape.Parent then
+                SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
             end
-        end)
+        end
         return
     end
 
     if isShiganshinaBreachMission and not protectHQCompleted then
         SafeFire(POST, "Attacks", "Slash", true)
         local targets = GetTargets(killHits)
-        task.spawn(function()
-            for i = 1, #targets do
-                local entry = targets[i]
-                local nape = entry.nape
-                if nape and nape.Parent then
-                    SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
-                end
-                task.wait(0.015)
+        for i = 1, #targets do
+            local entry = targets[i]
+            local nape = entry.nape
+            if nape and nape.Parent then
+                SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
             end
-        end)
+        end
         return
     end
 
@@ -7390,32 +7385,26 @@ local function AttackAllTitans()
 
     if not slayVisible then
         SafeFire(POST, "Attacks", "Slash", true)
-        task.spawn(function()
-            for i = 1, #targets do
-                local entry = targets[i]
-                local nape = entry.nape
-                if nape and nape.Parent then
-                    SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
-                end
-                task.wait(0.015)
+        for i = 1, #targets do
+            local entry = targets[i]
+            local nape = entry.nape
+            if nape and nape.Parent then
+                SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
             end
-        end)
+        end
         return
     end
 
     if not safe and #ActiveTitans <= stopAt then return end
 
     SafeFire(POST, "Attacks", "Slash", true)
-    task.spawn(function()
-            for i = 1, #targets do
-                local entry = targets[i]
-                local nape = entry.nape
-                if nape and nape.Parent then
-                    SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
-                end
-                task.wait(0.015)
+    for i = 1, #targets do
+            local entry = targets[i]
+            local nape = entry.nape
+            if nape and nape.Parent then
+                SafeFire(POST, "Hitboxes", "Register", nape, 99999, 0)
             end
-        end)
+        end
 end
 
 local function FarmUpdate()
@@ -8429,7 +8418,7 @@ task.spawn(function()
         end)
         if success then
             local clean = text:gsub("%s+", "")
-            return clean == "0/3"
+            return clean:sub(1, 2) == "0/"
         end
         return false
     end
@@ -9484,6 +9473,7 @@ if Tabs.AutoFarm then
     })
 end
 
+
 -- ╔════════════════════════════════════════════════════════════════════════╗
 -- ║              TCFG CONFIG APPLICATION SYSTEM v2.1                      ║
 -- ║  วางโค้ดนี้ท้ายสุดของสคริปต์เดิม (UI#2.lua)                          ║
@@ -10074,3 +10064,4 @@ task.spawn(function()
 end)
 
 print("[ZerixSCRIPT] TCFG Config System loaded!")
+
