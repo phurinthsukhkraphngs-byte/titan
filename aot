@@ -10022,6 +10022,20 @@ task.spawn(function()
     end)
 
     -- ═══════════════════════════════════════════════════
+    
+    -- LOOP APPLY FOR SLOW PCs (LOBBY ONLY)
+    task.spawn(function()
+        while true do
+            task.wait(1)
+            local currentCfg = getgenv().TCFG
+            if currentCfg and IsLobbyLobby() then
+                pcall(function()
+                    applyConfig(currentCfg)
+                end)
+            end
+        end
+    end)
+
     -- REACTIVE MONITORING LOOP
     -- ═══════════════════════════════════════════════════
     task.spawn(function()
