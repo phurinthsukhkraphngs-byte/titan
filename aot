@@ -9628,7 +9628,11 @@ task.spawn(function()
     local function applyConfig(cfg, changedKeys)
         local Opts = getgenv().Options or (type(Library) == "table" and Library.Options) or Options
         local Tgls = getgenv().Toggles or (type(Library) == "table" and Library.Toggles) or Toggles
-        if not Opts or not Tgls then return end
+        if not Opts or not Tgls then 
+            print("[TCFG-DEBUG] applyConfig aborted! Opts:", type(Opts), "Tgls:", type(Tgls))
+            return 
+        end
+        print("[TCFG-DEBUG] applyConfig starting, Opts found:", type(Opts))
         -- ถ้าไม่ระบุ changedKeys = apply ทั้งหมด
         local applyAll = (changedKeys == nil)
         local function shouldApply(key)
@@ -10019,10 +10023,25 @@ task.spawn(function()
         while true do
             task.wait(1)
             local currentCfg = getgenv().TCFG
+            print("[TCFG-DEBUG] Loop tick. currentCfg:", currentCfg ~= nil, "IsLobby:", IsLobbyLobby())
             if currentCfg and IsLobbyLobby() then
-                pcall(function()
+                local o1 = type(Options)
+                local o2 = type(getgenv().Options)
+                local missionDrop = false
+                pcall(function() 
+                    local O = getgenv().Options or Options 
+                    if O and O.MissionDropdown then missionDrop = true end 
+                end)
+                print("[TCFG-DEBUG] OptionsType1:", o1, "OptionsType2:", o2, "HasMissionDrop:", missionDrop)
+                
+                local success, err = pcall(function()
                     applyConfig(currentCfg)
                 end)
+                if not success then
+                    print("[TCFG-DEBUG] applyConfig ERROR:", err)
+                else
+                    print("[TCFG-DEBUG] applyConfig SUCCESS")
+                end
             end
         end
     end)
