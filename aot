@@ -6014,6 +6014,33 @@ if Tabs.AutoFarm then
             getgenv().StopAtTitansLeft = math.floor(val)
         end
     })
+    SafetyGroup:AddDivider()
+    
+    getgenv().AutoReturnLobby = getgenv().AutoReturnLobby or false
+    getgenv().AutoReturnLobbyRuns = getgenv().AutoReturnLobbyRuns or 15
+    getgenv().SessionRuns = getgenv().SessionRuns or 0
+    
+    SafetyGroup:AddSlider("AutoReturnLobbyRunsSlider", {
+        Text="Return Lobby after X runs",
+        Default = getgenv().AutoReturnLobbyRuns,
+        Min = 1,
+        Max = 100,
+        Rounding = 0,
+        Callback = function(val)
+            getgenv().AutoReturnLobbyRuns = math.floor(val)
+        end
+    })
+    
+    SafetyGroup:AddToggle("AutoReturnLobbyToggle", {
+        Text="Enable Auto Return Lobby",
+        Default = getgenv().AutoReturnLobby,
+        Callback = function(v)
+            getgenv().AutoReturnLobby = v
+            if not v then
+                getgenv().SessionRuns = 0
+            end
+        end
+    })
 end
 local PendingFarmStart = false
 local syncingWeapon = false  
@@ -8204,6 +8231,27 @@ if Tabs.AutoFarm then
                 rewardDetectedTime = tick()
                 waitingForRetry = true
                 retryAttempts = 0
+                
+                if getgenv().AutoReturnLobby then
+                    getgenv().SessionRuns = (getgenv().SessionRuns or 0) + 1
+                    local lib = getgenv().Library or Library
+                    if lib then
+                        lib:Notify(string.format("Run Finished! Session Runs: %d / %d", getgenv().SessionRuns, getgenv().AutoReturnLobbyRuns), 3)
+                    end
+                    
+                    if getgenv().SessionRuns >= getgenv().AutoReturnLobbyRuns then
+                        getgenv().SessionRuns = 0
+                        if lib then
+                            lib:Notify("Max runs reached! Returning to Lobby to upgrade/prestige...", 5)
+                        end
+                        task.wait(3)
+                        pcall(function()
+                            game:GetService("TeleportService"):Teleport(14916516914, game:GetService("Players").LocalPlayer)
+                        end)
+                        LastState = currentState
+                        continue
+                    end
+                end
             end
             
             LastState = currentState
@@ -8454,7 +8502,7 @@ if Tabs.Webhook then
     local DATA_FETCH_COOLDOWN = 5  
     
     local gamesPlayed = 0
-    local gamesPlayedPath = "ZerixSCRIPT/games_played.txt"
+    local gamesPlayedPath = "ZerixSCRIPT/games_played_" .. game:GetService("Players").LocalPlayer.Name .. ".txt"
     
     if isfile(gamesPlayedPath) then
         gamesPlayed = tonumber(readfile(gamesPlayedPath)) or 0
@@ -9484,9 +9532,9 @@ task.spawn(function()
     local TCFG = getgenv().TCFG
     if not TCFG then return end
 
-    -- ���������������������������������������������������
-    -- ����� Options ����� (�� UI ���ҧ����)
-    -- ���������������������������������������������������
+    --                                                    
+    --       Options       (   UI    ҧ    )
+    --                                                    
     local Opts = nil
     local Tgls = nil
     local waited = 0
@@ -9501,9 +9549,9 @@ task.spawn(function()
         warn("[TCFG] Options or Toggles not found, aborting")
         return
     end
-    task.wait(4) -- �� SaveManager autoload ���˹�ҵ�ҧ��ҧ���Ŵ����
+    task.wait(4) --    SaveManager autoload    ˹ ҵ ҧ  ҧ   Ŵ    
 
-    -- ���������������������������������������������������
+    --                                                    
     -- Helper Functions
     -- ═══════════════════════════════════════════════════
     local function safeSet(optionName, value)
@@ -9811,6 +9859,12 @@ task.spawn(function()
             end
             if shouldApply("StopAtTitansLeft") and cfg.StopAtTitansLeft then
                 safeSet("StopAtTitansLeftSlider", math.clamp(cfg.StopAtTitansLeft, 13, 30))
+            end
+            if shouldApply("AutoReturnLobbyRuns") and cfg.AutoReturnLobbyRuns then
+                safeSet("AutoReturnLobbyRunsSlider", cfg.AutoReturnLobbyRuns)
+            end
+            if shouldApply("AutoReturnLobby") then
+                safeSetToggle("AutoReturnLobbyToggle", cfg.AutoReturnLobby)
             end
 
             -- ─── Farm Mode (Blade) ───
