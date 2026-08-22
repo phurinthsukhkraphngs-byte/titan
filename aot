@@ -9591,11 +9591,11 @@ task.spawn(function()
             -- Slot Selection
             if shouldApply("Slot") and cfg.Slot then
                 safeSet("SlotSelectionDropdown", cfg.Slot)
-                task.wait(0.3)
+                task.wait(0.5)
             end
 
             -- Auto Click Select Slot
-            task.wait(1)
+            task.wait(0.5)
             if shouldApply("AutoSlot") then
                 safeSetToggle("AutoClickSelectToggle", cfg.AutoSlot)
             end
@@ -9607,7 +9607,7 @@ task.spawn(function()
             if shouldApply("AutoJoinDelay") and cfg.AutoJoinDelay then
                 safeSet("AutoJoinDelaySlider", cfg.AutoJoinDelay)
             end
-            task.wait(1.5)
+            task.wait(0.5)
             if shouldApply("AutoJoin") then
                 safeSetToggle("MyToggle", cfg.AutoJoin)
             end
@@ -9646,19 +9646,15 @@ task.spawn(function()
             if startType == "Missions" then
                 if shouldApply("AutoStartMap") and cfg.AutoStartMap then
                     safeSet("MissionDropdown", cfg.AutoStartMap)
-                    task.wait(0.5)
                 end
                 if shouldApply("AutoStartObjective") and cfg.AutoStartObjective then
                     safeSet("MissionObjectiveDropdown", cfg.AutoStartObjective)
-                    task.wait(0.3)
                 end
                 if shouldApply("AutoStartDifficulty") and cfg.AutoStartDifficulty then
                     safeSet("MissionDifficultyDropdown", cfg.AutoStartDifficulty)
-                    task.wait(0.3)
                 end
                 if shouldApply("AutoStartModifiers") and cfg.AutoStartModifiers then
                     safeSetMultiDropdown("MissionModifiersDropdown", cfg.AutoStartModifiers)
-                    task.wait(0.3)
                 end
                 if shouldApply("AutoStartDelay") and cfg.AutoStartDelay then
                     safeSet("MissionDelaySlider", cfg.AutoStartDelay)
@@ -9669,15 +9665,12 @@ task.spawn(function()
             if startType == "Raids" then
                 if shouldApply("AutoStartMap") and cfg.AutoStartMap then
                     safeSet("RaidBossDropdown", cfg.AutoStartMap)
-                    task.wait(0.5)
                 end
                 if shouldApply("AutoStartDifficulty") and cfg.AutoStartDifficulty then
                     safeSet("RaidDifficultyDropdown", cfg.AutoStartDifficulty)
-                    task.wait(0.3)
                 end
                 if shouldApply("AutoStartModifiers") and cfg.AutoStartModifiers then
                     safeSetMultiDropdown("RaidModifiersDropdown", cfg.AutoStartModifiers)
-                    task.wait(0.3)
                 end
                 if shouldApply("AutoStartDelay") and cfg.AutoStartDelay then
                     safeSet("RaidDelaySlider", cfg.AutoStartDelay)
@@ -9717,13 +9710,11 @@ task.spawn(function()
                 safeSetToggle("ForceGoldToggle", cfg.ForceGoldRequirement)
             end
             if shouldApply("AutoPrestige") then
-                task.wait(0.3)
                 safeSetToggle("PrestigeToggle", cfg.AutoPrestige)
             end
 
             -- ─── Auto Upgrade ───
             if shouldApply("AutoUpgrade") and cfg.AutoUpgrade then
-                task.wait(0.5)
                 local weapon = getgenv().GetDetectedWeapon and getgenv().GetDetectedWeapon() or "Blade"
                 if weapon == "Thunder Spear" then
                     safeSetToggle("AutoUpgradeSpearToggle", true)
@@ -9735,11 +9726,9 @@ task.spawn(function()
             -- ─── Boosts ───
             if shouldApply("Boosts") and cfg.Boosts and #cfg.Boosts > 0 then
                 safeSetMultiDropdown("Boost_ListDropdown", cfg.Boosts)
-                task.wait(0.3)
             end
             if shouldApply("AutoBoosts") and cfg.AutoBoosts then
                 safeSetToggle("Boost_PurchaseToggle", true)
-                task.wait(0.5)
                 safeSetToggle("Boost_AutoUseToggle", true)
             end
 
@@ -9748,11 +9737,9 @@ task.spawn(function()
                 safeSet("ClaimDelaySlider", cfg.ClaimDelay)
             end
             if shouldApply("ClaimQuests") then
-                task.wait(0.3)
                 safeSetToggle("ClaimQuestToggle", cfg.ClaimQuests)
             end
             if shouldApply("ClaimAchievements") then
-                task.wait(0.3)
                 safeSetToggle("ClaimAchievementToggle", cfg.ClaimAchievements)
             end
 
@@ -9767,20 +9754,17 @@ task.spawn(function()
                 if cfg.SupportSide and cfg.SupportSide ~= "None" then
                     safeSet("SupportSideDropdown", cfg.SupportSide)
                 end
-                task.wait(0.5)
                 safeSetToggle("UnlockSkillsToggle", true)
             end
 
             -- ─── Trade History ───
             if shouldApply("HistoryOption") and cfg.HistoryOption then
                 safeSet("HistoryOptionDropdown", cfg.HistoryOption)
-                task.wait(0.2)
                 safeSetToggle("ApplyHistoryToggle", true)
             end
 
             -- ─── Auto Start (ทำทีหลังสุด) ───
             if shouldApply("AutoStart") and cfg.AutoStart then
-                task.wait(2)
                 if startType == "Missions" then
                     safeSetToggle("AutoStartMissionToggle", true)
                 elseif startType == "Raids" then
@@ -9834,7 +9818,6 @@ task.spawn(function()
                 local hoverMethod = cfg.HoverMethod
                 if hoverMethod == "Regular" then hoverMethod = "Tween" end
                 safeSet("FarmModeDropdown", hoverMethod)
-                task.wait(0.2)
             end
             if shouldApply("HoverSpeed") and cfg.HoverSpeed then
                 safeSet("HoverSpeedSlider", cfg.HoverSpeed)
@@ -9890,7 +9873,6 @@ task.spawn(function()
                 safeSet("WebhookPingMode", cfg.WebhookPingMode)
             end
             if shouldApply("Webhook") then
-                task.wait(0.3)
                 safeSetToggle("WebhookToggle", cfg.Webhook)
             end
 
@@ -9907,7 +9889,6 @@ task.spawn(function()
                         if cfg.LobbyReturnAmount then
                             safeSet("CombinedActionDelaySlider", cfg.LobbyReturnAmount * 60)
                         end
-                        task.wait(0.3)
                         safeSetToggle("CombinedActionToggle", true)
                     end
                 end
@@ -9915,7 +9896,6 @@ task.spawn(function()
 
             -- ─── Auto Farm (ทำทีหลังสุด) ───
             if shouldApply("AutoFarm") and cfg.AutoFarm then
-                task.wait(2)
                 local weapon = getgenv().GetDetectedWeapon and getgenv().GetDetectedWeapon() or "Blade"
                 if weapon == "Thunder Spear" then
                     safeSetToggle("AutoThunderSpearToggle", true)
@@ -9931,7 +9911,6 @@ task.spawn(function()
         -- ║           DISABLE GUI                  ║
         -- ╚════════════════════════════════════════╝
         if getgenv().DisableGui then
-            task.wait(1)
             pcall(function()
                 if Window and Window.Holder and Window.Holder.Visible then
                     if Library and Library.Toggle then
@@ -9945,7 +9924,6 @@ task.spawn(function()
                 for _, opt in ipairs(cfg.FarmOptions) do
                     if opt == "Close GUI" then
                         safeSetToggle("HideUIToggle", true)
-                        task.wait(0.5)
                         pcall(function()
                             if Window and Window.Holder and Window.Holder.Visible then
                                 Library:Toggle()
@@ -9995,8 +9973,6 @@ task.spawn(function()
         task.spawn(function()
             local cfg = getgenv().TCFG
             if not cfg or not cfg.LeaveIfOtherPlayers then return end
-
-            task.wait(5)
             local Players = game:GetService("Players")
             local LocalPlayer = Players.LocalPlayer
 
@@ -10036,7 +10012,6 @@ task.spawn(function()
 
             local targetStreak = cfg.StreakToDieAt or 5000
             task.wait(10)
-
             while true do
                 task.wait(5)
                 if not getgenv().TCFG or not getgenv().TCFG.StreakDie then break end
@@ -10070,4 +10045,3 @@ task.spawn(function()
 end)
 
 print("[ZerixSCRIPT] TCFG Config System loaded!")
-
