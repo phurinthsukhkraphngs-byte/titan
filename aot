@@ -271,6 +271,18 @@ elseif IsIngameLobby() then activeFolder = ZerixSCRIPTFolder.."/Ingame"
 else activeFolder = ZerixSCRIPTFolder.."/Default" end
 if not isfolder(activeFolder) then makefolder(activeFolder) end
 
+local sessionRunsPath = "ZerixSCRIPT/session_runs_" .. game:GetService("Players").LocalPlayer.Name .. ".txt"
+local function getSessionRuns()
+    if isfile(sessionRunsPath) then
+        return tonumber(readfile(sessionRunsPath)) or 0
+    end
+    return 0
+end
+local function setSessionRuns(val)
+    pcall(function() writefile(sessionRunsPath, tostring(val)) end)
+end
+
+
 pcall(function()
     if game.Workspace:FindFirstChild("LinoriaLibSettings") then game.Workspace.LinoriaLibSettings:Destroy() end
     if isfolder("LinoriaLibSettings") then delfolder("LinoriaLibSettings") end
@@ -289,6 +301,7 @@ pcall(function() SaveManager:BuildFolderTree() end)
 
 local Tabs = {}
 if IsMainmenuLobby() then Tabs.MainMenu = Window:AddTab("Main Menu") end
+setSessionRuns(0)
 if IsLobbyLobby() then
     Tabs.Lobby = Window:AddTab("Lobby")
     Tabs.Session = Window:AddTab("Equipment")
@@ -8233,14 +8246,15 @@ if Tabs.AutoFarm then
                 retryAttempts = 0
                 
                 if getgenv().AutoReturnLobby then
-                    getgenv().SessionRuns = (getgenv().SessionRuns or 0) + 1
+                    local currentRuns = getSessionRuns() + 1
+                    setSessionRuns(currentRuns)
                     local lib = getgenv().Library or Library
                     if lib then
-                        lib:Notify(string.format("Run Finished! Session Runs: %d / %d", getgenv().SessionRuns, getgenv().AutoReturnLobbyRuns), 3)
+                        lib:Notify(string.format("Run Finished! Session Runs: %d / %d", currentRuns, getgenv().AutoReturnLobbyRuns), 3)
                     end
                     
-                    if getgenv().SessionRuns >= getgenv().AutoReturnLobbyRuns then
-                        getgenv().SessionRuns = 0
+                    if currentRuns >= getgenv().AutoReturnLobbyRuns then
+                        setSessionRuns(0)
                         if lib then
                             lib:Notify("Max runs reached! Returning to Lobby to upgrade/prestige...", 5)
                         end
