@@ -9484,37 +9484,42 @@ task.spawn(function()
     local TCFG = getgenv().TCFG
     if not TCFG then return end
 
-    -- ═══════════════════════════════════════════════════
-    -- รอให้ Options พร้อม (รอ UI สร้างเสร็จ)
-    -- ═══════════════════════════════════════════════════
+    -- ���������������������������������������������������
+    -- ����� Options ����� (�� UI ���ҧ����)
+    -- ���������������������������������������������������
+    local Opts = nil
+    local Tgls = nil
     local waited = 0
-    while (not Options or not next(Options)) and waited < 30 do
+    while waited < 30 do
+        Opts = getgenv().Options or (type(Library) == "table" and Library.Options) or Options
+        Tgls = getgenv().Toggles or (type(Library) == "table" and Library.Toggles) or Toggles
+        if Opts and type(Opts) == "table" and next(Opts) then break end
         task.wait(0.5)
         waited = waited + 0.5
     end
-    if not Options then
-        warn("[TCFG] Options not found, aborting")
+    if not Opts or not Tgls then
+        warn("[TCFG] Options or Toggles not found, aborting")
         return
     end
-    task.wait(3) -- รอ SaveManager autoload เสร็จ
+    task.wait(4) -- �� SaveManager autoload ���˹�ҵ�ҧ��ҧ���Ŵ����
 
-    -- ═══════════════════════════════════════════════════
+    -- ���������������������������������������������������
     -- Helper Functions
     -- ═══════════════════════════════════════════════════
     local function safeSet(optionName, value)
         pcall(function()
-            if Options and Options[optionName] then
-                Options[optionName]:SetValue(value)
+            if Opts and Opts[optionName] then
+                Opts[optionName]:SetValue(value)
             end
         end)
     end
 
     local function safeSetToggle(toggleName, value)
         pcall(function()
-            if Toggles and Toggles[toggleName] then
-                Toggles[toggleName]:SetValue(value)
-            elseif Options and Options[toggleName] then
-                Options[toggleName]:SetValue(value)
+            if Tgls and Tgls[toggleName] then
+                Tgls[toggleName]:SetValue(value)
+            elseif Opts and Opts[toggleName] then
+                Opts[toggleName]:SetValue(value)
             end
         end)
     end
@@ -9581,7 +9586,7 @@ task.spawn(function()
         -- ╔════════════════════════════════════════╗
         -- ║          MAIN MENU CONTEXT             ║
         -- ╚════════════════════════════════════════╝
-        if Options.SlotSelectionDropdown then
+        if Opts.SlotSelectionDropdown then
 
             -- Slot Selection
             if shouldApply("Slot") and cfg.Slot then
@@ -9590,6 +9595,7 @@ task.spawn(function()
             end
 
             -- Auto Click Select Slot
+            task.wait(1)
             if shouldApply("AutoSlot") then
                 safeSetToggle("AutoClickSelectToggle", cfg.AutoSlot)
             end
@@ -9601,8 +9607,8 @@ task.spawn(function()
             if shouldApply("AutoJoinDelay") and cfg.AutoJoinDelay then
                 safeSet("AutoJoinDelaySlider", cfg.AutoJoinDelay)
             end
+            task.wait(1.5)
             if shouldApply("AutoJoin") then
-                task.wait(0.5)
                 safeSetToggle("MyToggle", cfg.AutoJoin)
             end
 
@@ -9633,7 +9639,7 @@ task.spawn(function()
         -- ╔════════════════════════════════════════╗
         -- ║            LOBBY CONTEXT               ║
         -- ╚════════════════════════════════════════╝
-        if Options.MissionDropdown then
+        if Opts.MissionDropdown then
             local startType = cfg.AutoStartType or "Missions"
 
             -- ─── Mission Settings ───
@@ -9790,7 +9796,7 @@ task.spawn(function()
         -- ╔════════════════════════════════════════╗
         -- ║          IN-GAME CONTEXT               ║
         -- ╚════════════════════════════════════════╝
-        if Options.FarmModeDropdown then
+        if Opts.FarmModeDropdown then
 
             -- ─── FPS ───
             if shouldApply("FPSLimit") and cfg.FPSLimit then
@@ -9985,7 +9991,7 @@ task.spawn(function()
     -- ══════════════════════════════════════════════════════════
     -- TCFG: LEAVE IF OTHER PLAYERS
     -- ══════════════════════════════════════════════════════════
-    if Options.FarmModeDropdown then
+    if Opts.FarmModeDropdown then
         task.spawn(function()
             local cfg = getgenv().TCFG
             if not cfg or not cfg.LeaveIfOtherPlayers then return end
@@ -10023,7 +10029,7 @@ task.spawn(function()
     -- ══════════════════════════════════════════════════════════
     -- TCFG: STREAK DIE
     -- ══════════════════════════════════════════════════════════
-    if Options.FarmModeDropdown then
+    if Opts.FarmModeDropdown then
         task.spawn(function()
             local cfg = getgenv().TCFG
             if not cfg or not cfg.StreakDie then return end
