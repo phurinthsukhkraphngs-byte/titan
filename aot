@@ -90,7 +90,7 @@ repeat task.wait() until game:GetService("Players").LocalPlayer:WaitForChild("Pl
 repeat task.wait() until game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Interface")
 task.wait(1)
 
-task.wait(8) -- Waiting for coins/data to load fully
+task.wait(15) -- Waiting for coins/data to load fully
 
 
 -- ระบบ AFK 
@@ -9555,7 +9555,7 @@ task.spawn(function()
     local Opts = nil
     local Tgls = nil
     local waited = 0
-    while waited < 30 do
+    while waited < 60 do
         Opts = getgenv().Options or (type(Library) == "table" and Library.Options) or Options
         Tgls = getgenv().Toggles or (type(Library) == "table" and Library.Toggles) or Toggles
         if Opts and type(Opts) == "table" and next(Opts) then break end
