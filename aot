@@ -9566,7 +9566,7 @@ task.spawn(function()
         warn("[TCFG] Options or Toggles not found, aborting")
         return
     end
-    task.wait(4) --    SaveManager autoload    ˹ ҵ ҧ  ҧ   Ŵ    
+    task.wait(15) -- SaveManager autoload (Wait longer for slow PCs)
 
     --                                                    
     -- Helper Functions
@@ -10016,6 +10016,10 @@ task.spawn(function()
         applyConfig(TCFG)
     end)
     lastSnapshot = deepCopy(TCFG)
+    task.spawn(function()
+        task.wait(10)
+        pcall(function() applyConfig(TCFG) end)
+    end)
 
     -- ═══════════════════════════════════════════════════
     -- REACTIVE MONITORING LOOP
