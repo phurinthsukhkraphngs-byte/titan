@@ -9551,27 +9551,16 @@ task.spawn(function()
     --                                                    
     --       Options       (   UI    ҧ    )
     --                                                    
-    local Opts = nil
-    local Tgls = nil
-    local waited = 0
-    while waited < 60 do
-        Opts = getgenv().Options or (type(Library) == "table" and Library.Options) or Options
-        Tgls = getgenv().Toggles or (type(Library) == "table" and Library.Toggles) or Toggles
-        if Opts and type(Opts) == "table" and next(Opts) then break end
-        task.wait(0.5)
-        waited = waited + 0.5
-    end
-    if not Opts or not Tgls then
-        warn("[TCFG] Options or Toggles not found, aborting")
-        return
-    end
-    task.wait(15) -- SaveManager autoload (Wait longer for slow PCs)
+
+    task.wait(15) -- Allow UI time to load
+ -- SaveManager autoload (Wait longer for slow PCs)
 
     --                                                    
     -- Helper Functions
     -- ═══════════════════════════════════════════════════
     local function safeSet(optionName, value)
         pcall(function()
+            local Opts = getgenv().Options or (type(Library) == "table" and Library.Options) or Options
             if Opts and Opts[optionName] then
                 Opts[optionName]:SetValue(value)
             end
@@ -9637,6 +9626,9 @@ task.spawn(function()
     -- Apply ค่าจาก TCFG ลง UI - รองรับทุก context
     -- ═══════════════════════════════════════════════════
     local function applyConfig(cfg, changedKeys)
+        local Opts = getgenv().Options or (type(Library) == "table" and Library.Options) or Options
+        local Tgls = getgenv().Toggles or (type(Library) == "table" and Library.Toggles) or Toggles
+        if not Opts or not Tgls then return end
         -- ถ้าไม่ระบุ changedKeys = apply ทั้งหมด
         local applyAll = (changedKeys == nil)
         local function shouldApply(key)
