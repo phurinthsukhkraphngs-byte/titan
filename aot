@@ -3630,7 +3630,7 @@ if Tabs.Lobby then
                 Library:Notify("Starting mission", 2)
                 StartMission()
                 local startTick = tick()
-                repeat task.wait(0.05) until not missionRunning or missionSessionId ~= mySession or tick() - startTick >= 0.45
+                repeat task.wait(0.05) until not missionRunning or missionSessionId ~= mySession or tick() - startTick >= 5.0
             end
             missionBusy = false
         end
@@ -4013,7 +4013,7 @@ if Tabs.Lobby then
                 Library:Notify("Starting raid", 2)
                 StartRaid()
                 local startTick = tick()
-                repeat task.wait(0.05) until not raidRunning or raidSessionId ~= mySession or tick() - startTick >= 0.45
+                repeat task.wait(0.05) until not raidRunning or raidSessionId ~= mySession or tick() - startTick >= 5.0
             end
             raidBusy = false
         end
@@ -4176,7 +4176,7 @@ if Tabs.Lobby then
             repeat
                 task.wait(0.05)
                 if not wavesRunning or wavesSessionId ~= mySession then break end
-            until tick() - startTick >= 0.45
+            until tick() - startTick >= 5.0
 
                         if wavesDelay > 0 then
                 wavesCooldownUntil = tick() + wavesDelay
