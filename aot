@@ -5895,23 +5895,79 @@ if IsIngameLobby() and Tabs.AutoFarm then
             end
 
             if v["Delete Map"] then
-                local climbable = workspace:FindFirstChild("Climbable")
-                local unclimbable = workspace:FindFirstChild("Unclimbable")
-                if climbable or unclimbable then
-                    if climbable then
-                        for _, child in ipairs(climbable:GetChildren()) do
-                            pcall(function() child:Destroy() end)
-                        end
-                    end
-                    if unclimbable then
-                        local preserve = {Reloads = true, Objective = true, Cutscene = true}
-                        for _, child in ipairs(unclimbable:GetChildren()) do
-                            if not preserve[child.Name] then
-                                pcall(function() child:Destroy() end)
-                            end
-                        end
+                -- ทำงานเฉพาะ Shiganshina
+                local mapName = ""
+                pcall(function()
+                    local data = game:GetService("ReplicatedStorage"):WaitForChild("Assets"):WaitForChild("Remotes"):WaitForChild("GET"):InvokeServer("Data", "Copy")
+                    if data and data.Map then mapName = data.Map.Map or "" end
+                end)
+
+                local function clearChildren(parent)
+                    if not parent then return end
+                    for _, child in ipairs(parent:GetChildren()) do
+                        pcall(function() child:Destroy() end)
                     end
                 end
+                local function clearDescendants(parent)
+                    if not parent then return end
+                    for _, obj in ipairs(parent:GetDescendants()) do
+                        pcall(function() obj:Destroy() end)
+                    end
+                end
+
+                local Workspace = game:GetService("Workspace")
+                local Lighting = game:GetService("Lighting")
+
+                -- Static cleanup
+                local Terrain = Workspace:FindFirstChild("Terrain")
+                if Terrain then clearChildren(Terrain) end
+
+                local Climbable = Workspace:FindFirstChild("Climbable")
+                if Climbable then clearChildren(Climbable) end
+
+                local Unclimbable = Workspace:FindFirstChild("Unclimbable")
+                if Unclimbable then
+                    clearChildren(Unclimbable:FindFirstChild("Background"))
+                    clearChildren(Unclimbable:FindFirstChild("Platforms"))
+                    clearChildren(Unclimbable:FindFirstChild("Trees"))
+                    clearDescendants(Unclimbable:FindFirstChild("Props"))
+                end
+
+                clearChildren(Lighting)
+                pcall(function() clearChildren(game:GetService("MaterialService")) end)
+
+                -- Realtime: ป้องกัน object ใหม่ถูกสร้างใน folders
+                local function protectFolder(folder)
+                    if not folder then return end
+                    clearDescendants(folder)
+                    folder.DescendantAdded:Connect(function(obj)
+                        task.defer(function()
+                            if obj and obj.Parent then
+                                pcall(function() obj:Destroy() end)
+                            end
+                        end)
+                    end)
+                end
+                if Unclimbable then
+                    protectFolder(Unclimbable:FindFirstChild("Background"))
+                    protectFolder(Unclimbable:FindFirstChild("Platforms"))
+                    protectFolder(Unclimbable:FindFirstChild("Trees"))
+                    protectFolder(Unclimbable:FindFirstChild("Props"))
+                end
+
+                -- Fallback cleanup loop ทุก 5 วิ
+                task.spawn(function()
+                    while v["Delete Map"] do
+                        task.wait(5)
+                        local UC = Workspace:FindFirstChild("Unclimbable")
+                        if UC then
+                            clearChildren(UC:FindFirstChild("Background"))
+                            clearChildren(UC:FindFirstChild("Platforms"))
+                            clearChildren(UC:FindFirstChild("Trees"))
+                            clearDescendants(UC:FindFirstChild("Props"))
+                        end
+                    end
+                end)
             end
 
             if v["Disable 3D Render"] then
@@ -10045,7 +10101,7 @@ task.spawn(function()
     -- ══════════════════════════════════════════════════════════
     -- TCFG: LEAVE IF OTHER PLAYERS
     -- ══════════════════════════════════════════════════════════
-    if Opts.FarmModeDropdown then
+    if (getgenv().Options or Options or {}).FarmModeDropdown then
         task.spawn(function()
             local cfg = getgenv().TCFG
             if not cfg or not cfg.LeaveIfOtherPlayers then return end
@@ -10081,7 +10137,7 @@ task.spawn(function()
     -- ══════════════════════════════════════════════════════════
     -- TCFG: STREAK DIE
     -- ══════════════════════════════════════════════════════════
-    if Opts.FarmModeDropdown then
+    if (getgenv().Options or Options or {}).FarmModeDropdown then
         task.spawn(function()
             local cfg = getgenv().TCFG
             if not cfg or not cfg.StreakDie then return end
