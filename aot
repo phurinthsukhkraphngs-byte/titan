@@ -3448,47 +3448,7 @@ if Tabs.Lobby then
                     continue
                 end
                 
-               
-                Library:Notify("🔄 Leaving current mission to reset state...", 3)
-                LeaveMission()
-                local leaveStart = tick()
-                while (tick() - leaveStart) < 2 do
-                    local missions = game:GetService("ReplicatedStorage"):FindFirstChild("Missions")
-                    local stillExists = false
-                    if missions then
-                        for _, m in next, missions:GetChildren() do
-                            if m:FindFirstChild("Leader") and m.Leader.Value == game.Players.LocalPlayer.Name then
-                                stillExists = true
-                                break
-                            end
-                        end
-                    end
-                    if not stillExists then break end
-                    task.wait(0.1)
-                end
-                task.wait(0.3)
-                
-                Library:Notify(string.format("Recreating mission with exact difficulty: %s", targetDiff), 3)
-                CreateMission(currentMission, targetObj, targetDiff)
-                task.wait(0.2)
-                
-                local recreateSuccess = false
-                for retry = 1, 3 do
-                    if GetMyMission() then
-                        recreateSuccess = true
-                        break
-                    end
-                    task.wait(0.3)
-                end
-                if not recreateSuccess then
-                    Library:Notify("Failed to recreate mission, restarting loop", 3)
-                    LeaveMission()
-                    missionBusy = false
-                    task.wait(1)
-                    continue
-                end
-                Library:Notify("Mission recreated successfully!", 3)
-                
+                -- FIX B: ไม่ต้อง Leave/Recreate ซ้ำ ถ้า GetMyMission() สำเร็จแล้วให้ apply modifier แล้ว Start เลย
                 Library:Notify("Applying modifiers...", 3)
                 local selectedMods = {}
                 pcall(function()
@@ -3517,7 +3477,7 @@ if Tabs.Lobby then
                         for retry = 1, 3 do
                             success = ApplyModifier(mod)
                             if success then break end
-                            task.wait(0.8) -- Slower to be sure
+                            task.wait(0.8)
                         end
                         if success then
                             applied = applied + 1
@@ -3525,7 +3485,6 @@ if Tabs.Lobby then
                         else
                             Library:Notify(string.format("  Failed to apply: %s", mod), 2)
                         end
-                          
                     end
                     task.wait(0.4)
                     Library:Notify(string.format("Applied %d/%d modifiers", applied, #selectedMods), 3)
@@ -3540,8 +3499,24 @@ if Tabs.Lobby then
                 
                 Library:Notify("Starting mission", 2)
                 StartMission()
+                -- FIX C: รอ mission หายจาก Missions list = teleport เข้าเกมแล้ว (timeout 15 วิ)
                 local startTick = tick()
-                repeat task.wait(0.05) until not missionRunning or missionSessionId ~= mySession or tick() - startTick >= 3.5
+                repeat
+                    task.wait(0.2)
+                    local stillInLobby = false
+                    pcall(function()
+                        local missions = game:GetService("ReplicatedStorage"):FindFirstChild("Missions")
+                        if missions then
+                            for _, m in next, missions:GetChildren() do
+                                if m:FindFirstChild("Leader") and m.Leader.Value == game.Players.LocalPlayer.Name then
+                                    stillInLobby = true
+                                    break
+                                end
+                            end
+                        end
+                    end)
+                    if not stillInLobby then break end
+                until not missionRunning or missionSessionId ~= mySession or tick() - startTick >= 15
                 if MissionDelay > 0 then task.wait(MissionDelay) end
                 
             else
@@ -3564,27 +3539,7 @@ if Tabs.Lobby then
                     continue
                 end
                 
-                Library:Notify("Recreating mission to ensure stability...", 3)
-                LeaveMission()
-                task.wait(0.3)
-                CreateMission(currentMission, obj, currentDifficulty)
-                task.wait(0.2)
-                
-                local recreateSuccess = false
-                for retry = 1, 3 do
-                    if GetMyMission() then
-                        recreateSuccess = true
-                        break
-                    end
-                    task.wait(0.3)
-                end
-                if not recreateSuccess then
-                    Library:Notify("Recreate failed, restarting loop", 3)
-                    LeaveMission()
-                    missionBusy = false
-                    task.wait(1)
-                    continue
-                end
+                -- FIX B: สร้างสำเร็จแล้ว → apply modifier แล้ว Start เลย ไม่ต้อง Leave/Recreate
                 Library:Notify("Mission ready", 3)
                 
                 local selectedMods = {}
@@ -3613,10 +3568,10 @@ if Tabs.Lobby then
                         for retry = 1, 3 do
                             success = ApplyModifier(mod)
                             if success then break end
-                            task.wait(0.8) -- Slower to be sure
+                            task.wait(0.8)
                         end
                         if success then applied = applied + 1 end
-                                              end
+                    end
                     task.wait(0.4)
                     Library:Notify(string.format("Applied %d/%d modifiers", applied, #selectedMods), 3)
                 end
@@ -3628,8 +3583,24 @@ if Tabs.Lobby then
                 
                 Library:Notify("Starting mission", 2)
                 StartMission()
+                -- FIX C: รอ mission หายจาก Missions list = teleport เข้าเกมแล้ว (timeout 15 วิ)
                 local startTick = tick()
-                repeat task.wait(0.05) until not missionRunning or missionSessionId ~= mySession or tick() - startTick >= 5.0
+                repeat
+                    task.wait(0.2)
+                    local stillInLobby = false
+                    pcall(function()
+                        local missions = game:GetService("ReplicatedStorage"):FindFirstChild("Missions")
+                        if missions then
+                            for _, m in next, missions:GetChildren() do
+                                if m:FindFirstChild("Leader") and m.Leader.Value == game.Players.LocalPlayer.Name then
+                                    stillInLobby = true
+                                    break
+                                end
+                            end
+                        end
+                    end)
+                    if not stillInLobby then break end
+                until not missionRunning or missionSessionId ~= mySession or tick() - startTick >= 15
             end
             missionBusy = false
         end
@@ -3702,9 +3673,15 @@ if Tabs.Lobby then
                 activeAutoContent = "mission"
                 missionPendingStart = true
                 missionStartTask = task.spawn(function()
+                    -- FIX A: timeout 30s fallback ถ้า isUIActive() ไม่ผ่าน
+                    local waitStart = tick()
                     while missionPendingStart do
                         if isUIActive() then
                             Library:Notify("Content Ready (Mission)", 2)
+                            break
+                        end
+                        if tick() - waitStart >= 30 then
+                            Library:Notify("UI timeout — starting mission anyway", 2)
                             break
                         end
                         task.wait(0.5)
